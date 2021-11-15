@@ -21,7 +21,7 @@ func main() {
 	if err != nil {
 		logger.Error(p, err)
 	}
-
+	//of
 	defer db.Close()
 	// setup database
 	logger.Info(p, "Применение миграций")
