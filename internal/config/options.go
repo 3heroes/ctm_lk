@@ -55,7 +55,7 @@ func (c *Config) checkEnv() {
 }
 
 func (c *Config) setDefault() {
-	c.servAddr = "localhost:8080"
+	c.servAddr = "localhost:8082"
 	c.dbConnString = "user=postgres password=112233 dbname=ctm sslmode=disable"
 }
 
