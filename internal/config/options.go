@@ -54,9 +54,19 @@ func (c *Config) checkEnv() {
 
 }
 
+var server = "192.168.1.63"
+var port = 1433
+var user = "sts"
+var password = "sts"
+var database = "go_test"
+
 func (c *Config) setDefault() {
-	c.servAddr = "localhost:8082"
-	c.dbConnString = "user=postgres password=112233 dbname=ctm sslmode=disable"
+	c.servAddr = "localhost:8080"
+	//c.dbConnString = "user=postgres password=112233 dbname=ctm sslmode=disable"
+	// подключение к MS SQL Server
+	c.dbConnString = fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;",
+		server, user, password, port, database)
+
 }
 
 //setFlags for get options from console to default application options.
