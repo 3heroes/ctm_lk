@@ -66,6 +66,7 @@ func (c *Config) setDefault() {
 	// подключение к MS SQL Server
 	c.dbConnString = fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;",
 		server, user, password, port, database)
+
 }
 
 //setFlags for get options from console to default application options.
