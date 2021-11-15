@@ -11,7 +11,13 @@ require (
 )
 
 require (
+	github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe // indirect
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
+)
+
+require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/denisenkom/go-mssqldb v0.11.0
 	github.com/mattn/go-sqlite3 v1.14.9 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

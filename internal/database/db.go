@@ -10,6 +10,8 @@ import (
 	"ctm_lk/internal/config"
 	"ctm_lk/internal/models"
 	"ctm_lk/pkg/logger"
+
+	_ "github.com/denisenkom/go-mssqldb"
 )
 
 type serverDB struct {
@@ -42,7 +44,8 @@ func (s *serverDB) CheckDBConnection(ctx context.Context) {
 func OpenDBConnect() models.ServerDB {
 	s := new(serverDB)
 	ctx := context.Background()
-	db, err := sql.Open("postgres", config.Cfg.DBConnString())
+	//db, err := sql.Open("postgres", config.Cfg.DBConnString())
+	db, err := sql.Open("sqlserver", config.Cfg.DBConnString())
 	if err != nil {
 		logger.Error("Ошибка подключения к БД", err)
 	}
