@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
 	"net/http"
 	"path/filepath"
 	"time"
@@ -26,7 +25,6 @@ type Server struct {
 func (s *Server) getSelfSignedOrLetsEncryptCert(certManager *autocert.Manager) func(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 	return func(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 		keyFile := filepath.Join(config.Cfg.ProgramPath(), "localhost_cert", "key.pem")
-		fmt.Println(keyFile)
 		crtFile := filepath.Join(config.Cfg.ProgramPath(), "localhost_cert", "cert.pem")
 		certificate, err := tls.LoadX509KeyPair(crtFile, keyFile)
 		if err != nil {
@@ -40,8 +38,11 @@ func (s *Server) getSelfSignedOrLetsEncryptCert(certManager *autocert.Manager) f
 
 func (s *Server) router() http.Handler {
 	r := chi.NewRouter()
-	r.Use(middlewares.ZipHandlerRead, middlewares.ZipHandlerWrite)
+	r.Use(middlewares.AddAccessAllow, middlewares.ZipHandlerRead, middlewares.ZipHandlerWrite)
+	r.Options("/*", handlers.HandlerOptions)
 	r.Get("/*", handlers.HandlerStartPage)
+	r.Post("/*", handlers.HandlerStartPage)
+
 	r.Post("/api/user/register", handlers.HandlerRegistration(s.NewDBUserRepo()))
 	r.Post("/api/user/login", handlers.HandlerLogin(s.NewDBUserRepo()))
 	// r.Route("/api", func(r chi.Router) {

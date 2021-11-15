@@ -17,8 +17,8 @@ type DBUserRepo struct {
 func (db DBUserRepo) Get(ctx context.Context, u *models.User) (bool, error) {
 	ctx, cancelfunc := context.WithTimeout(ctx, 5*time.Second)
 	defer cancelfunc()
-	q := `SELECT COALESCE(id, 0), user_name, user_token, user_password FROM users WHERE user_token=$1 OR user_name=$2`
-	row := db.QueryRowContext(ctx, q, u.Token, u.Login)
+	q := `SELECT COALESCE(id, 0), user_name, user_token, user_password FROM users WHERE user_token=@Token OR user_name=@Name`
+	row := db.QueryRowContext(ctx, q, sql.Named("Token", u.Token), sql.Named("Name", u.Login))
 	if err := row.Scan(&u.ID, &u.Login, &u.Token, &u.Password); err != nil && err != sql.ErrNoRows {
 		logger.Info(q, err)
 		return false, err
@@ -39,8 +39,8 @@ func (db DBUserRepo) Add(ctx context.Context, u *models.User) error {
 
 	u.Token = encription.EncriptStr(u.Login)
 
-	q := `INSERT INTO users (user_name, user_password, user_token) VALUES ($1,$2,$3) RETURNING ID`
-	row := db.QueryRowContext(ctx, q, u.Login, u.Password, u.Token)
+	q := `INSERT INTO users (user_name, user_password, user_token) OUTPUT INSERTED.ID VALUES (@Name,@Password,@Token)`
+	row := db.QueryRowContext(ctx, q, sql.Named("Name", u.Login), sql.Named("Password", u.Password), sql.Named("Token", u.Token))
 
 	if err := row.Scan(&u.ID); err != nil {
 		logger.Info(q, err)

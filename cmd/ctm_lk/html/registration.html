@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Добавление бланка</title>
+  <link href="css/style.css" rel="stylesheet" type="text/css"/>
+  <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+  <div id="contact-form" class="form-container">
+    <h1>Добавление бланка</h1>
+    <form class= "form_main" method="post" action="https://localhost:8080/api/user/register">
+      <div class= "frm">
+        <label for="login">Логин:</label>
+        <input type="text" name="login" id="login">
+      </div>
+      <div class= "frm">
+        <label for="password">Пароль</label>
+        <input type="password" name="password" id="password">
+      </div>
+
+      <button type="submit" class= "btn_form">Войти</button>
+    </form>
+  </div>
+  <!-- Модальные окна  -->
+  <section class="frm_posted modal modal-dialog" >
+    <div class="modal-header-decor"></div>
+    <h2 class="modal-center-container">Форма успешно отправлена</h2>
+    <button type="button" name="close-button" class="modal-close modal-close-button">Закрыть окно</button>
+    <div class="modal-footer">
+      <div class="modal-center-container modal-footer-buttons">
+        <a src="index.html" class="btn_form go-to-main-paige modal-close-button">Продолжить</a>
+      </div>
+    </div>
+  </section>
+  <script async src="js/registration.js"></script>	
+</body>
+</html>
