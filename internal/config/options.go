@@ -3,25 +3,40 @@ package config
 import (
 	"flag"
 	"fmt"
+	"net"
 	"os"
+	"strings"
 	"sync"
 
 	"ctm_lk/pkg/logger"
-
-	"github.com/caarlos0/env/v6"
 )
 
 var Cfg *Config
 var once sync.Once
 
 type Config struct {
-	servAddr     string
-	dbConnString string
-	appDir       string
+	servHost      string
+	servHttpPort  string
+	servHttpsPort string
+	dbConnString  string
+	appDir        string
+	dbServ        msSQLparams
 }
 
-func (c Config) ServAddr() string {
-	return c.servAddr
+type msSQLparams struct {
+	server   string
+	port     int
+	user     string
+	password string
+	database string
+}
+
+func (c Config) ServAddrHttps() string {
+	return net.JoinHostPort(c.servHost, c.servHttpsPort)
+}
+
+func (c Config) ServAddrHttp() string {
+	return net.JoinHostPort(c.servHost, c.servHttpPort)
 }
 
 func (c Config) DBConnString() string {
@@ -32,48 +47,42 @@ func (c Config) ProgramPath() string {
 	return c.appDir
 }
 
-type EnvOptions struct {
-	ServAddr     string `env:"RUN_ADDRESS"`
-	DBConnString string `env:"DATABASE_URI"`
-}
-
-//checkEnv for get options from env to default application options.
-func (c *Config) checkEnv() {
-
-	e := new(EnvOptions)
-	err := env.Parse(e)
-	if err != nil {
-		logger.Info("Ошибка чтения конфигурации из переменного окружения", err)
-	}
-	if len(e.ServAddr) != 0 {
-		c.servAddr = e.ServAddr
-	}
-	if len(e.DBConnString) != 0 {
-		c.dbConnString = e.DBConnString
-	}
-
-}
-
-var server = "192.168.1.63"
-var port = 1433
-var user = "sts"
-var password = "sts"
-var database = "go_test"
-
 func (c *Config) setDefault() {
-	c.servAddr = "localhost:8080"
-	//c.dbConnString = "user=postgres password=112233 dbname=ctm sslmode=disable"
+	c.dbServ = msSQLparams{
+		server:   "192.168.1.63",
+		port:     1433,
+		user:     "sts",
+		password: "sts",
+		database: "go_test",
+	}
+	c.servHost = "localhost"
+	c.servHttpPort = "80"
+	c.servHttpsPort = "443"
 	// подключение к MS SQL Server
 	c.dbConnString = fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;",
-		server, user, password, port, database)
+		c.dbServ.server, c.dbServ.user, c.dbServ.password, c.dbServ.port, c.dbServ.database)
 
 }
 
 //setFlags for get options from console to default application options.
-func (c *Config) setFlags() {
-	flag.StringVar(&c.servAddr, "a", c.servAddr, "a server address string")
+func (c *Config) getFlags() {
+	flag.StringVar(&c.servHost, "a", "", "a server address string")
+	flag.StringVar(&c.servHttpsPort, "p", c.servHttpsPort, "a https port string")
 	flag.StringVar(&c.dbConnString, "d", c.dbConnString, "a db connection string")
 	flag.Parse()
+}
+
+func (c *Config) checkServAddressValid() {
+	if strings.Contains(c.servHost, ":") {
+		if host, port, err := net.SplitHostPort(c.servHost); err == nil {
+			c.servHost = host
+			c.servHttpPort = port
+			fmt.Println(host)
+			fmt.Println(port)
+		} else {
+			logger.Info("Error", "Ошибка разбора адреса сервера. Не верный формат", c.servHost)
+		}
+	}
 }
 
 func createConfig() {
@@ -85,10 +94,9 @@ func createConfig() {
 	}
 
 	Cfg.setDefault()
-	Cfg.checkEnv()
-	Cfg.setFlags()
+	Cfg.getFlags()
 	Cfg.appDir = appDir
-	fmt.Println(Cfg.DBConnString())
+	Cfg.checkServAddressValid()
 	logger.Info("Создан config")
 }
 

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"ctm_lk/internal/config"
 	"ctm_lk/internal/models"
 	"ctm_lk/pkg/logger"
 )
@@ -20,7 +21,8 @@ func CheckAuthorization(ur models.UsersRepo) func(http.Handler) http.Handler {
 			}
 
 			if len(key) == 0 {
-				w.WriteHeader(http.StatusUnauthorized)
+				w.Header().Add("Location", "https://"+config.Cfg.ServAddrHttps()+"/registration.html")
+				w.WriteHeader(http.StatusTemporaryRedirect)
 				return
 			}
 
@@ -36,7 +38,8 @@ func CheckAuthorization(ur models.UsersRepo) func(http.Handler) http.Handler {
 
 			if !finded {
 				logger.Info(http.StatusUnauthorized)
-				w.WriteHeader(http.StatusUnauthorized)
+				w.Header().Add("Location", "https://"+config.Cfg.ServAddrHttps()+"/registration.html")
+				w.WriteHeader(http.StatusTemporaryRedirect)
 				return
 			}
 

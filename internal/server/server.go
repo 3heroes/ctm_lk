@@ -20,6 +20,7 @@ import (
 type Server struct {
 	http.Server
 	models.ServerDB
+	redirect http.Server
 }
 
 func (s *Server) getSelfSignedOrLetsEncryptCert(certManager *autocert.Manager) func(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
@@ -36,15 +37,40 @@ func (s *Server) getSelfSignedOrLetsEncryptCert(certManager *autocert.Manager) f
 	}
 }
 
+func (s *Server) redirectToHTTPS(ctx context.Context) {
+	s.redirect = http.Server{
+		Addr: config.Cfg.ServAddrHttp(),
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			u := r.URL
+			u.Host = config.Cfg.ServAddrHttps()
+			u.Scheme = "https"
+			logger.Info(u.String())
+			http.Redirect(w, r, u.String(), http.StatusMovedPermanently)
+		}),
+	}
+	logger.Info("Старт сервера переадресации по адресу", config.Cfg.ServAddrHttp())
+
+	go s.redirect.ListenAndServe()
+}
+
 func (s *Server) router() http.Handler {
+
+	fs := http.FileServer(http.Dir("./html"))
 	r := chi.NewRouter()
 	r.Use(middlewares.AddAccessAllow, middlewares.ZipHandlerRead, middlewares.ZipHandlerWrite)
-	r.Options("/*", handlers.HandlerOptions)
-	r.Get("/*", handlers.HandlerStartPage)
-	r.Post("/*", handlers.HandlerStartPage)
 
+	r.Options("/*", handlers.HandlerOptions)
+	r.Get("/registration.html", fs.ServeHTTP)
+	r.Get("/css/style.css", fs.ServeHTTP)
+	r.Get("/js/registration.js", fs.ServeHTTP)
 	r.Post("/api/user/register", handlers.HandlerRegistration(s.NewDBUserRepo()))
 	r.Post("/api/user/login", handlers.HandlerLogin(s.NewDBUserRepo()))
+	r.Group(func(r chi.Router) {
+		r.Use(middlewares.CheckAuthorization(s.NewDBUserRepo()))
+		r.Get("/*", handlers.HandlerStartPage)
+		r.Post("/*", handlers.HandlerStartPage)
+	})
+
 	// r.Route("/api", func(r chi.Router) {
 	// 	r.Use(middlewares.CheckAuthorization(s.NewDBUserRepo()))
 	// 	r.Post("/user/...", ...)
@@ -59,17 +85,17 @@ func (s *Server) Start(ctx context.Context) {
 
 	s.router()
 	// s.Addr = config.Cfg.ServAddr()
-	logger.Info("Старт сервера по адресу", config.Cfg.ServAddr())
+	logger.Info("Старт сервера по адресу", config.Cfg.ServAddrHttps())
 
 	m := &autocert.Manager{
 		Cache:      autocert.DirCache("golang-autocert"),
 		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist(config.Cfg.ServAddr()),
+		HostPolicy: autocert.HostWhitelist(config.Cfg.ServAddrHttps()),
 	}
 
 	tlsConfig := m.TLSConfig()
 	tlsConfig.GetCertificate = s.getSelfSignedOrLetsEncryptCert(m)
-	s.Addr = config.Cfg.ServAddr()
+	s.Addr = config.Cfg.ServAddrHttps()
 	s.TLSConfig = tlsConfig
 	s.Handler = s.router()
 	go s.ListenAndServeTLS("", "")
@@ -81,4 +107,5 @@ func (s *Server) Start(ctx context.Context) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancelFunc()
 	s.Shutdown(ctx)
+	s.redirect.Shutdown(ctx)
 }
