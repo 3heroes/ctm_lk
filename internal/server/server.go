@@ -105,6 +105,7 @@ func (s *Server) Start(ctx context.Context) {
 	// go s.ListenAndServeTLS("localhost/cert.pem", "localhost/key.pem")
 
 	logger.Info("Сервер запущен")
+	s.redirectToHTTPS(ctx)
 
 	<-ctx.Done()
 	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*5)

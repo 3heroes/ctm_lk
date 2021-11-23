@@ -33,6 +33,9 @@ form.addEventListener('submit', function (evt) {
 async function submit(evt) {
     var object = {};
     var formData = new FormData(form);
+    // for (let [key, value] of formData) {
+    //     object[key] = value;
+    // };
     formData.forEach(function (value, key) {
         object[key] = value;
     });
