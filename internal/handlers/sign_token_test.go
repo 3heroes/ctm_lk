@@ -40,7 +40,7 @@ func (t *testHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-func TestHandlerLogin(t *testing.T) {
+func TestHandlerLoginToken(t *testing.T) {
 	testValue := map[string]struct {
 		body       string
 		userFinded bool
@@ -88,7 +88,7 @@ func TestHandlerLogin(t *testing.T) {
 	for k, v := range testValue {
 
 		urm := new(UsersRepoMock)
-		tHandler := HandlerLogin(urm)
+		tHandler := HandlerLoginToken(urm)
 		r := httptest.NewRequest("GET", "/", strings.NewReader(v.body))
 		w = httptest.NewRecorder()
 		urm.On("Get", r.Context(), ur).Return(v.userFinded, v.findErr)
@@ -99,7 +99,7 @@ func TestHandlerLogin(t *testing.T) {
 	}
 }
 
-func TestHandlerRegistration(t *testing.T) {
+func TestHandlerRegistrationToken(t *testing.T) {
 
 	testValue := map[string]struct {
 		body       string
@@ -152,7 +152,7 @@ func TestHandlerRegistration(t *testing.T) {
 	for k, v := range testValue {
 
 		urm := new(UsersRepoMock)
-		tHandler := HandlerRegistration(urm)
+		tHandler := HandlerRegistrationToken(urm)
 		r := httptest.NewRequest("POST", "/", strings.NewReader(v.body))
 		w = httptest.NewRecorder()
 		urm.On("Get", r.Context(), ur).Return(v.userFinded, v.findErr)

@@ -63,10 +63,10 @@ func (s *Server) router() http.Handler {
 	r.Get("/registration.html", fs.ServeHTTP)
 	r.Get("/css/style.css", fs.ServeHTTP)
 	r.Get("/js/registration.js", fs.ServeHTTP)
-	r.Post("/api/user/register", handlers.HandlerRegistration(s.NewDBUserRepo()))
-	r.Post("/api/user/login", handlers.HandlerLogin(s.NewDBUserRepo()))
+	r.Post("/api/user/register", handlers.HandlerRegistrationCookie(s.NewDBUserRepo()))
+	r.Post("/api/user/login", handlers.HandlerLoginCookie(s.NewDBUserRepo()))
 	r.Group(func(r chi.Router) {
-		r.Use(middlewares.CheckAuthorization(s.NewDBUserRepo()))
+		r.Use(middlewares.CheckAuthorizationCookie(s.NewDBUserRepo()))
 		r.Get("/*", handlers.HandlerStartPage)
 		r.Post("/*", handlers.HandlerStartPage)
 	})

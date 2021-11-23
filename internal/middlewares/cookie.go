@@ -2,22 +2,19 @@ package middlewares
 
 import (
 	"context"
-	"net/http"
-	"strings"
-
 	"ctm_lk/internal/config"
 	"ctm_lk/internal/models"
 	"ctm_lk/pkg/logger"
+	"net/http"
 )
 
-func CheckAuthorization(ur models.UsersRepo) func(http.Handler) http.Handler {
+func CheckAuthorizationCookie(ur models.UsersRepo) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			tokenName := "bearer "
-			t := r.Header.Get("Authorization")
+			c, err := r.Cookie("UserID")
 			key := ""
-			if strings.HasPrefix(strings.ToLower(t), tokenName) {
-				key = t[len(tokenName):]
+			if err == nil {
+				key = c.Value
 			}
 
 			if len(key) == 0 {
@@ -43,10 +40,13 @@ func CheckAuthorization(ur models.UsersRepo) func(http.Handler) http.Handler {
 				return
 			}
 
-			w.Header().Add("Authorization", t)
+			c = &http.Cookie{
+				Name:  "UserID",
+				Value: key,
+			}
+			http.SetCookie(w, c)
 			ctx := context.WithValue(r.Context(), models.UKeyName, u.ID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
-

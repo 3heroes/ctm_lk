@@ -1,32 +1,12 @@
 package handlers
 
 import (
-	"encoding/json"
-	"io"
-	"net/http"
-
 	"ctm_lk/internal/models"
 	"ctm_lk/pkg/logger"
+	"net/http"
 )
 
-func getUserFromRequest(r *http.Request) (*models.User, bool) {
-	b, err := io.ReadAll(r.Body)
-	defer r.Body.Close()
-	if err != nil {
-		logger.Info("Ошибка обработки запроса", err)
-		return nil, false
-	}
-	user := new(models.User)
-
-	err = json.Unmarshal(b, user)
-	if err != nil {
-		logger.Info("Ошибка Unmarshal", err)
-		return nil, false
-	}
-	return user, true
-}
-
-func HandlerRegistration(ur models.UsersRepo) http.HandlerFunc {
+func HandlerRegistrationCookie(ur models.UsersRepo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Обработка запроса регистрации")
 		ctx := r.Context()
@@ -56,13 +36,17 @@ func HandlerRegistration(ur models.UsersRepo) http.HandlerFunc {
 			return
 		}
 
-		w.Header().Add("Authorization", "Bearer "+user.Token)
+		c := &http.Cookie{
+			Name:  "UserID",
+			Value: user.Token,
+		}
+		http.SetCookie(w, c)
 		w.WriteHeader(http.StatusOK)
 		logger.Info(http.StatusOK)
 	}
 }
 
-func HandlerLogin(ur models.UsersRepo) http.HandlerFunc {
+func HandlerLoginCookie(ur models.UsersRepo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Обработка запроса входа")
 		ctx := r.Context()
@@ -88,7 +72,11 @@ func HandlerLogin(ur models.UsersRepo) http.HandlerFunc {
 			return
 		}
 
-		w.Header().Add("Authorization", "Bearer "+user.Token)
+		c := &http.Cookie{
+			Name:  "UserID",
+			Value: user.Token,
+		}
+		http.SetCookie(w, c)
 		w.WriteHeader(http.StatusOK)
 		logger.Info(http.StatusOK)
 	}
