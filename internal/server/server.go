@@ -67,7 +67,7 @@ func (s *Server) router() http.Handler {
 	r.Post("/api/user/login", handlers.HandlerLoginCookie(s.NewDBUserRepo()))
 	r.Group(func(r chi.Router) {
 		r.Use(middlewares.CheckAuthorizationCookie(s.NewDBUserRepo()))
-		r.Get("/*", handlers.HandlerStartPage)
+		r.Get("/*", fs.ServeHTTP)
 		r.Post("/*", handlers.HandlerStartPage)
 	})
 
