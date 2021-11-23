@@ -21,7 +21,7 @@ func CheckAuthorization(ur models.UsersRepo) func(http.Handler) http.Handler {
 			}
 
 			if len(key) == 0 {
-				w.Header().Add("Location", "https://"+config.Cfg.ServAddrHttps()+"/registration.html")
+				w.Header().Add("Location", "https://"+config.Cfg.ServAddrHttps()+"/login.html")
 				w.WriteHeader(http.StatusTemporaryRedirect)
 				return
 			}
@@ -38,7 +38,7 @@ func CheckAuthorization(ur models.UsersRepo) func(http.Handler) http.Handler {
 
 			if !finded {
 				logger.Info(http.StatusUnauthorized)
-				w.Header().Add("Location", "https://"+config.Cfg.ServAddrHttps()+"/registration.html")
+				w.Header().Add("Location", "https://"+config.Cfg.ServAddrHttps()+"/login.html")
 				w.WriteHeader(http.StatusTemporaryRedirect)
 				return
 			}
@@ -49,4 +49,3 @@ func CheckAuthorization(ur models.UsersRepo) func(http.Handler) http.Handler {
 		})
 	}
 }
-

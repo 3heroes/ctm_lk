@@ -66,7 +66,8 @@ input:focus, select:focus {
 .btn_form {
   padding: 10px 0;
   border-width: 0;
-  display: block;
+  display: flex;
+  justify-content: center;
   width: 200px;
   margin: 25px auto;
   background: #FF6600;
@@ -74,6 +75,10 @@ input:focus, select:focus {
   font-size: 14px;
   outline: none;
   text-transform: uppercase;
+}
+a.btn_form {
+  text-decoration: none;
+  cursor: default;
 }
 .btn_form:hover {
   background: #444;
@@ -181,19 +186,15 @@ input:focus, select:focus {
   outline: none;
 }
 
-.modal-dialog .content-block{
+.modal-dialog .modal-content-block{
   display: -webkit-box;
   display: -ms-flexbox;
   display: -webkit-flex;
   display: flex;
   flex-flow: row wrap;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 
-.modal-dialog .modal-center-container{
-  margin-left: 80px;
-  margin-right: 80px;
-}
 
 .modal-dialog input{
   width: 220px;
@@ -205,19 +206,20 @@ input:focus, select:focus {
   border-radius: 3px;
 }
 
-.modal-footer{
-  width: 100%;
-  background-color: rgb(142, 142, 148);
-}
-
-.frm_posted .modal-footer-buttons{
+.modal-dialog  .modal-footer-buttons{
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
   /* padding: 37px 0; */
 }
 
-.frm_posted .go-to-main-paige{
+.modal-footer{
+  width: 100%;
+  background-color: rgb(142, 142, 148);
+}
+
+
+.modal-dialog .go-to-parrent-page{
   display: flex;
   justify-content: center;
   width: 220px;
@@ -233,6 +235,8 @@ input:focus, select:focus {
 
   cursor: pointer;
 }
+
+
 
 
 

@@ -8,9 +8,19 @@ import (
 	"net/http"
 )
 
+func aa() {
+
+}
+
 func CheckAuthorizationCookie(ur models.UsersRepo) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			notAuthorithation := func() {
+				w.Header().Add("Location", "https://"+config.Cfg.ServAddrHttps()+"/reg_login.html")
+				w.WriteHeader(http.StatusTemporaryRedirect)
+			}
+
 			c, err := r.Cookie("UserID")
 			key := ""
 			if err == nil {
@@ -18,8 +28,7 @@ func CheckAuthorizationCookie(ur models.UsersRepo) func(http.Handler) http.Handl
 			}
 
 			if len(key) == 0 {
-				w.Header().Add("Location", "https://"+config.Cfg.ServAddrHttps()+"/registration.html")
-				w.WriteHeader(http.StatusTemporaryRedirect)
+				notAuthorithation()
 				return
 			}
 
@@ -35,13 +44,13 @@ func CheckAuthorizationCookie(ur models.UsersRepo) func(http.Handler) http.Handl
 
 			if !finded {
 				logger.Info(http.StatusUnauthorized)
-				w.Header().Add("Location", "https://"+config.Cfg.ServAddrHttps()+"/registration.html")
-				w.WriteHeader(http.StatusTemporaryRedirect)
+				notAuthorithation()
 				return
 			}
 
 			c = &http.Cookie{
 				Name:  "UserID",
+				Path:  "/",
 				Value: key,
 			}
 			http.SetCookie(w, c)

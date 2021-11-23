@@ -38,6 +38,7 @@ func HandlerRegistrationCookie(ur models.UsersRepo) http.HandlerFunc {
 
 		c := &http.Cookie{
 			Name:  "UserID",
+			Path:  "/",
 			Value: user.Token,
 		}
 		http.SetCookie(w, c)
@@ -74,6 +75,7 @@ func HandlerLoginCookie(ur models.UsersRepo) http.HandlerFunc {
 
 		c := &http.Cookie{
 			Name:  "UserID",
+			Path:  "/",
 			Value: user.Token,
 		}
 		http.SetCookie(w, c)

@@ -1,7 +1,7 @@
 /* функция добавления ведущих нулей */
 /* (если число меньше десяти, перед числом добавляем ноль) */
 var current_datetime = new Date();
-var popup = document.querySelector(".frm_posted");
+var popup = document.querySelector(".modal-dialog");
 var close = popup.querySelectorAll(".modal-close-button");
 for (var i = 0; i < close.length; i++) {
     close[i].addEventListener("click", function (evt) {
@@ -14,17 +14,15 @@ for (var i = 0; i < close.length; i++) {
 /*отправка формы*/
 var form = document.querySelector('.form_main');
 
-function onFormPostError() {
+function onFormPostError(message) {
     var header = popup.querySelector('h2')
-    header.value = "Ошибка отправки сообщения"
+    header.textContent = message
     popup.classList.add('modal-show');
 };
 
 function onFormPostSuccess() {
     popup.classList.add('modal-show');
     form.reset()
-    document.getElementById('datein').value = date_();
-    document.getElementById('timein').value = time_();
 };
 
 form.addEventListener('submit', function (evt) {
@@ -47,9 +45,15 @@ async function submit(evt) {
         method: 'POST',
         body: json
     });
-    if (response.ok) {
-        onFormPostSuccess()
-    } else {
-        onFormPostError()
+    switch(response.status) {
+        case 200:
+            document.location.href = 'index.html';
+            break;
+        case 409:
+            onFormPostError("Указанный логин уже существует");
+            break;
+        case 500:
+            onFormPostError("Ошибка обработки запроса сервером");
+            break;
     }
 }

@@ -18,10 +18,10 @@ func (s *serverDB) createTables(ctx context.Context) {
                  BEGIN
                   CREATE TABLE [dbo].[users](
 	                           [id] [int] IDENTITY(1,1) NOT NULL,
-	                           [user_name] [nchar](50) NOT NULL,
-	                           [user_password] [nchar](36) NULL,
-	                           [user_key] [nchar](36) NULL,
-	                           [user_token] [nchar](36) NULL,
+	                           [user_name] [varchar](50) NOT NULL,
+	                           [user_password] [varchar](36) NULL,
+	                           [user_key] [varchar](36) NULL,
+	                           [user_token] [varchar](36) NULL,
 	                           [date_add] [datetime] NULL,
                    CONSTRAINT [PK_users] PRIMARY KEY CLUSTERED (	[id] ASC),
                    CONSTRAINT [AK_TransactionID] UNIQUE NONCLUSTERED ([user_name] ASC)

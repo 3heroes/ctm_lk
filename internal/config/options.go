@@ -66,7 +66,7 @@ func (c *Config) setDefault() {
 
 //setFlags for get options from console to default application options.
 func (c *Config) getFlags() {
-	flag.StringVar(&c.servHost, "a", "", "a server address string")
+	flag.StringVar(&c.servHost, "a", c.servHost, "a server address string")
 	flag.StringVar(&c.servHttpsPort, "p", c.servHttpsPort, "a https port string")
 	flag.StringVar(&c.dbConnString, "d", c.dbConnString, "a db connection string")
 	flag.Parse()
