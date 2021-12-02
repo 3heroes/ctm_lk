@@ -92,7 +92,9 @@ func createConfig() {
 	if err != nil {
 		logger.Error(err)
 	}
-
+	f := openFileConfig()
+	defer f.Close()
+	fmt.Println(f)
 	Cfg.setDefault()
 	Cfg.getFlags()
 	Cfg.appDir = appDir
